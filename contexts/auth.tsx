@@ -26,10 +26,7 @@ export const [AuthContext, useAuth] = createContextHook(() => {
       setIsLoading(false);
     }
   };
-const login = async (
-  email: string,
-  password: string
-) => {
+const login = async (email: string, password: string) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -37,7 +34,14 @@ const login = async (
     });
 
     if (error || !data.user) {
-      return { success: false, error };
+      console.log('Login falhou:', error);
+      return {
+        success: false,
+        error: {
+          name: error?.name || 'AuthError',
+          message: error?.message || 'Email ou senha inválidos',
+        } as AuthError,
+      };
     }
 
     const userData: User = {
@@ -47,12 +51,14 @@ const login = async (
       createdAt: data.user.created_at,
     };
 
+    console.log('Login bem-sucedido');
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(userData));
+    console.log('AsyncStorage keys:', await AsyncStorage.getAllKeys());
     setUser(userData);
 
     return { success: true, error: null };
   } catch (err) {
-    console.error('Error logging in:', err);
+    console.error('Erro inesperado ao logar:', err);
     return {
       success: false,
       error: {
@@ -63,6 +69,7 @@ const login = async (
     };
   }
 };
+
 const register = async (
   name: string,
   email: string,

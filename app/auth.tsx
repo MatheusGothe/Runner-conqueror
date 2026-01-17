@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/auth";
+import { sendVerificationEmail } from "@/src/utils/sendVerificationEmail";
 import { useRouter } from "expo-router";
 import { Trophy } from "lucide-react-native";
 import React, { useState } from "react";
@@ -23,30 +24,40 @@ export default function AuthScreen() {
   const { login, register } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = async () => {
-    if (!email || !password || (!isLogin && !name)) {
-      Alert.alert("Erro", "Preencha todos os campos");
-      return;
-    }
+const handleSubmit = async () => {
+  if (!email || !password || (!isLogin && !name)) {
+    Alert.alert("Erro", "Preencha todos os campos");
+    return;
+  }
 
-    let success : any = false;
-    if (isLogin) {
-      success = await login(email, password);
-      if (!success) {
+  let result: { success: boolean; error: AuthError | null } = { success: false, error: null };
+
+  if (isLogin) {
+    result = await login(email, password);
+
+    if (!result.success) {
+      // Verifica se é email não confirmado
+      if (result.error?.message?.includes("Email not confirmed")) {
+        sendVerificationEmail(email);
+        
+      } else {
         Alert.alert("Erro", "Email ou senha inválidos");
       }
-    } else {
-      success = await register(name, email, password);
-      if (!success) {
-        Alert.alert("Erro", "Este email já está cadastrado");
-      }
+      return; // sai do handleSubmit sem tentar redirecionar
     }
-    console.log(success)
-    if (success) {
-      console.log('caiuuu')
-      router.replace("/(tabs)");
+  } else {
+    result = await register(name, email, password);
+
+    if (!result.success) {
+      Alert.alert("Erro", "Este email já está cadastrado");
+      return;
     }
-  };
+  }
+
+  // Se chegou aqui, login ou registro foi bem-sucedido
+  router.replace("/(tabs)");
+};
+
 
  return (
   <KeyboardAvoidingView

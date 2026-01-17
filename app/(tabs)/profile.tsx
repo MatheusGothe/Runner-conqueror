@@ -17,7 +17,6 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { getUserStats, activities } = useTerritory();
   const router = useRouter();
-
   if (!user) return null;
 
   const stats = getUserStats(user.id);
