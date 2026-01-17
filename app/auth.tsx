@@ -1,55 +1,59 @@
-import React, { useState } from 'react';
+import { useAuth } from "@/contexts/auth";
+import { useRouter } from "expo-router";
+import { Trophy } from "lucide-react-native";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/auth';
-import { Trophy } from 'lucide-react-native';
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+    Keyboard,
+    TouchableWithoutFeedback
+} from "react-native";
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login, register } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async () => {
     if (!email || !password || (!isLogin && !name)) {
-      Alert.alert('Erro', 'Preencha todos os campos');
+      Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
 
-    let success = false;
+    let success : any = false;
     if (isLogin) {
       success = await login(email, password);
       if (!success) {
-        Alert.alert('Erro', 'Email ou senha inválidos');
+        Alert.alert("Erro", "Email ou senha inválidos");
       }
     } else {
       success = await register(name, email, password);
       if (!success) {
-        Alert.alert('Erro', 'Este email já está cadastrado');
+        Alert.alert("Erro", "Este email já está cadastrado");
       }
     }
-
+    console.log(success)
     if (success) {
-      router.replace('/(tabs)');
+      console.log('caiuuu')
+      router.replace("/(tabs)");
     }
   };
 
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+ return (
+  <KeyboardAvoidingView
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    style={styles.container}
+  >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.iconContainer}>
@@ -101,7 +105,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>
-              {isLogin ? 'Entrar' : 'Criar conta'}
+              {isLogin ? "Entrar" : "Criar conta"}
             </Text>
           </TouchableOpacity>
 
@@ -111,48 +115,50 @@ export default function AuthScreen() {
           >
             <Text style={styles.switchText}>
               {isLogin
-                ? 'Não tem conta? Cadastre-se'
-                : 'Já tem conta? Entre'}
+                ? "Não tem conta? Cadastre-se"
+                : "Já tem conta? Entre"}
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-    </KeyboardAvoidingView>
-  );
+    </TouchableWithoutFeedback>
+  </KeyboardAvoidingView>
+);
+
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: "#0a0a0a",
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: 60,
     paddingHorizontal: 24,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 48,
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 20,
-    backgroundColor: '#1a1a1a',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#1a1a1a",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold' as const,
-    color: '#fff',
+    fontWeight: "bold" as const,
+    color: "#fff",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#888',
+    color: "#888",
   },
   form: {
     gap: 20,
@@ -162,37 +168,37 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600' as const,
-    color: '#fff',
+    fontWeight: "600" as const,
+    color: "#fff",
   },
   input: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: "#1a1a1a",
     borderWidth: 1,
-    borderColor: '#2a2a2a',
+    borderColor: "#2a2a2a",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
   },
   button: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
     borderRadius: 12,
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
   },
   switchButton: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 8,
   },
   switchText: {
-    color: '#888',
+    color: "#888",
     fontSize: 14,
   },
 });

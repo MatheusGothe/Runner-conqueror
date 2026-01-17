@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 import { useEffect, useState } from 'react';
 import { User } from '@/types';
-
+import { supabase } from '@/lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
 const USER_KEY = '@territory_user';
 
 export const [AuthContext, useAuth] = createContextHook(() => {
@@ -25,53 +26,85 @@ export const [AuthContext, useAuth] = createContextHook(() => {
       setIsLoading(false);
     }
   };
+const login = async (
+  email: string,
+  password: string
+) => {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const usersData = await AsyncStorage.getItem('@territory_users');
-      const users: User[] = usersData ? JSON.parse(usersData) : [];
-      
-      const foundUser = users.find(u => u.email === email);
-      
-      if (foundUser) {
-        await AsyncStorage.setItem(USER_KEY, JSON.stringify(foundUser));
-        setUser(foundUser);
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Error logging in:', error);
-      return false;
+    if (error || !data.user) {
+      return { success: false, error };
     }
-  };
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    try {
-      const usersData = await AsyncStorage.getItem('@territory_users');
-      const users: User[] = usersData ? JSON.parse(usersData) : [];
-      
-      if (users.find(u => u.email === email)) {
-        return false;
-      }
+    const userData: User = {
+      id: data.user.id,
+      name: data.user.user_metadata?.name ?? '',
+      email: data.user.email!,
+      createdAt: data.user.created_at,
+    };
 
-      const newUser: User = {
-        id: Date.now().toString(),
-        name,
-        email,
-        createdAt: new Date().toISOString(),
-      };
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(userData));
+    setUser(userData);
 
-      users.push(newUser);
-      await AsyncStorage.setItem('@territory_users', JSON.stringify(users));
-      await AsyncStorage.setItem(USER_KEY, JSON.stringify(newUser));
-      setUser(newUser);
-      return true;
-    } catch (error) {
-      console.error('Error registering:', error);
-      return false;
+    return { success: true, error: null };
+  } catch (err) {
+    console.error('Error logging in:', err);
+    return {
+      success: false,
+      error: {
+        name: 'AuthError',
+        message: 'Erro inesperado',
+        status: 500,
+      } as AuthError,
+    };
+  }
+};
+const register = async (
+  name: string,
+  email: string,
+  password: string
+)  => {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+      },
+    });
+
+    if (error || !data.user) {
+      return { success: false, error };
     }
-  };
+
+    const newUser: User = {
+      id: data.user.id,
+      name,
+      email: data.user.email!,
+      createdAt: data.user.created_at,
+    };
+
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(newUser));
+    setUser(newUser);
+
+    return { success: true, error: null };
+  } catch (err) {
+    console.error('Error registering:', err);
+    return {
+      success: false,
+      error: {
+        name: 'AuthError',
+        message: 'Erro inesperado',
+        status: 500,
+      } as AuthError,
+    };
+  }
+};
+
 
   const logout = async () => {
     try {

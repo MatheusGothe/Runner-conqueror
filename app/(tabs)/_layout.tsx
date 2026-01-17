@@ -1,18 +1,8 @@
-import { Tabs, Redirect } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { Map, Trophy, User } from "lucide-react-native";
 import React from "react";
-import { useAuth } from "@/contexts/auth";
 
 export default function TabLayout() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return null;
-  }
-
-  if (!isAuthenticated) {
-    return <Redirect href="/auth" />;
-  }
 
   return (
     <Tabs

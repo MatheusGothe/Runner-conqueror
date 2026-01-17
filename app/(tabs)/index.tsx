@@ -1,18 +1,18 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useAuth } from "@/contexts/auth";
+import { useTerritory } from "@/contexts/territory";
+import * as Location from "expo-location";
+import { MapPin, Navigation, Play, Square } from "lucide-react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Platform,
-  ActivityIndicator,
-} from 'react-native';
-import MapView, { Polygon, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-import * as Location from 'expo-location';
-import { Play, Square, MapPin, Navigation } from 'lucide-react-native';
-import { useTerritory } from '@/contexts/territory';
-import { useAuth } from '@/contexts/auth';
+    ActivityIndicator,
+    Alert,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import MapView, { Polygon, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 
 export default function MapScreen() {
   const { user } = useAuth();
@@ -25,31 +25,35 @@ export default function MapScreen() {
     finishTracking,
   } = useTerritory();
 
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null,
+  );
   const [hasPermission, setHasPermission] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const mapRef = useRef<MapView>(null);
-  const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+  const locationSubscription = useRef<Location.LocationSubscription | null>(
+    null,
+  );
 
   const requestLocationPermission = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasPermission(status === "granted");
 
-      if (status === 'granted') {
+      if (status === "granted") {
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
         setLocation(currentLocation);
       } else {
         Alert.alert(
-          'Permissão Necessária',
-          'Precisamos da sua localização para registrar territórios'
+          "Permissão Necessária",
+          "Precisamos da sua localização para registrar territórios",
         );
       }
     } catch (error) {
-      console.error('Error requesting location permission:', error);
-      Alert.alert('Erro', 'Não foi possível acessar sua localização');
+      console.error("Error requesting location permission:", error);
+      Alert.alert("Erro", "Não foi possível acessar sua localização");
     } finally {
       setIsLoading(false);
     }
@@ -69,10 +73,10 @@ export default function MapScreen() {
             latitude: newLocation.coords.latitude,
             longitude: newLocation.coords.longitude,
           });
-        }
+        },
       );
     } catch (error) {
-      console.error('Error starting location tracking:', error);
+      console.error("Error starting location tracking:", error);
     }
   }, [addRoutePoint]);
 
@@ -111,8 +115,8 @@ export default function MapScreen() {
   const handleFinishTracking = async () => {
     if (currentRoute.length < 3) {
       Alert.alert(
-        'Território Pequeno',
-        'Você precisa percorrer uma área maior para criar um território'
+        "Território Pequeno",
+        "Você precisa percorrer uma área maior para criar um território",
       );
       return;
     }
@@ -120,8 +124,8 @@ export default function MapScreen() {
     const territory = await finishTracking();
     if (territory) {
       Alert.alert(
-        'Território Conquistado! 🎉',
-        `Você dominou uma área de ${Math.round(territory.area)} m²`
+        "Território Conquistado! 🎉",
+        `Você dominou uma área de ${Math.round(territory.area)} m²`,
       );
     }
   };
@@ -152,9 +156,13 @@ export default function MapScreen() {
         <MapPin size={64} color="#666" />
         <Text style={styles.errorTitle}>Permissão Necessária</Text>
         <Text style={styles.errorText}>
-          Precisamos acessar sua localização para mostrar o mapa e registrar territórios
+          Precisamos acessar sua localização para mostrar o mapa e registrar
+          territórios
         </Text>
-        <TouchableOpacity style={styles.permissionButton} onPress={requestLocationPermission}>
+        <TouchableOpacity
+          style={styles.permissionButton}
+          onPress={requestLocationPermission}
+        >
           <Text style={styles.permissionButtonText}>Permitir Localização</Text>
         </TouchableOpacity>
       </View>
@@ -175,7 +183,7 @@ export default function MapScreen() {
       <MapView
         ref={mapRef}
         style={styles.map}
-        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+        provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
         initialRegion={initialRegion}
         showsUserLocation
         showsMyLocationButton={false}
@@ -212,7 +220,9 @@ export default function MapScreen() {
                 <View style={styles.recordingDot} />
                 <Text style={styles.recordingText}>Gravando</Text>
               </View>
-              <Text style={styles.pointsCount}>{currentRoute.length} pontos</Text>
+              <Text style={styles.pointsCount}>
+                {currentRoute.length} pontos
+              </Text>
             </View>
 
             <TouchableOpacity
@@ -220,7 +230,9 @@ export default function MapScreen() {
               onPress={handleFinishTracking}
             >
               <Square size={24} color="#fff" fill="#fff" />
-              <Text style={styles.controlButtonText}>Finalizar e Conquistar</Text>
+              <Text style={styles.controlButtonText}>
+                Finalizar e Conquistar
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -242,7 +254,7 @@ export default function MapScreen() {
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statValue}>
-            {territories.filter(t => t.ownerId === user?.id).length}
+            {territories.filter((t) => t.ownerId === user?.id).length}
           </Text>
           <Text style={styles.statLabel}>Seus</Text>
         </View>
@@ -254,40 +266,40 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: "#0a0a0a",
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#0a0a0a",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 16,
   },
   loadingText: {
     fontSize: 16,
-    color: '#888',
+    color: "#888",
   },
   errorContainer: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#0a0a0a",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 40,
     gap: 16,
   },
   errorTitle: {
     fontSize: 20,
-    fontWeight: 'bold' as const,
-    color: '#fff',
+    fontWeight: "bold" as const,
+    color: "#fff",
   },
   errorText: {
     fontSize: 14,
-    color: '#888',
-    textAlign: 'center',
+    color: "#888",
+    textAlign: "center",
     lineHeight: 20,
   },
   permissionButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
@@ -295,115 +307,115 @@ const styles = StyleSheet.create({
   },
   permissionButtonText: {
     fontSize: 16,
-    fontWeight: '600' as const,
-    color: '#fff',
+    fontWeight: "600" as const,
+    color: "#fff",
   },
   map: {
     flex: 1,
   },
   centerButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
     right: 20,
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1a1a1a',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    backgroundColor: "#1a1a1a",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
   },
   controls: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 100,
     left: 20,
     right: 20,
   },
   trackingInfo: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: "#1a1a1a",
     borderRadius: 20,
     padding: 16,
     gap: 12,
   },
   trackingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   recordingIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   recordingDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
   },
   recordingText: {
     fontSize: 14,
-    fontWeight: '600' as const,
-    color: '#fff',
+    fontWeight: "600" as const,
+    color: "#fff",
   },
   pointsCount: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
   },
   controlButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 12,
     paddingVertical: 16,
     borderRadius: 16,
   },
   startButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
   },
   stopButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
   },
   controlButtonText: {
     fontSize: 16,
-    fontWeight: '700' as const,
-    color: '#fff',
+    fontWeight: "700" as const,
+    color: "#fff",
   },
   stats: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
     left: 20,
-    flexDirection: 'row',
-    backgroundColor: '#1a1a1a',
+    flexDirection: "row",
+    backgroundColor: "#1a1a1a",
     borderRadius: 16,
     padding: 12,
     gap: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 8,
   },
   statValue: {
     fontSize: 20,
-    fontWeight: 'bold' as const,
-    color: '#fff',
+    fontWeight: "bold" as const,
+    color: "#fff",
   },
   statLabel: {
     fontSize: 11,
-    color: '#888',
+    color: "#888",
     marginTop: 2,
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: "#2a2a2a",
   },
 });

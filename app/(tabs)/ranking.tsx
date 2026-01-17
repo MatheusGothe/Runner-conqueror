@@ -1,16 +1,10 @@
-import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  SafeAreaView,
-} from 'react-native';
-import { Trophy, Crown } from 'lucide-react-native';
-import { useTerritory } from '@/contexts/territory';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from '@tanstack/react-query';
-import { User } from '@/types';
+import { useTerritory } from "@/contexts/territory";
+import { User } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQuery } from "@tanstack/react-query";
+import { Crown, Trophy } from "lucide-react-native";
+import React, { useMemo } from "react";
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 interface RankingUser {
   user: User;
@@ -22,16 +16,16 @@ export default function RankingScreen() {
   const { territories } = useTerritory();
 
   const { data: users = [] } = useQuery({
-    queryKey: ['users'],
+    queryKey: ["users"],
     queryFn: async () => {
-      const usersData = await AsyncStorage.getItem('@territory_users');
+      const usersData = await AsyncStorage.getItem("@territory_users");
       return usersData ? JSON.parse(usersData) : [];
     },
   });
 
   const ranking = useMemo(() => {
     const userStats: RankingUser[] = users.map((user: User) => {
-      const userTerritories = territories.filter(t => t.ownerId === user.id);
+      const userTerritories = territories.filter((t) => t.ownerId === user.id);
       return {
         user,
         territoriesCount: userTerritories.length,
@@ -54,7 +48,13 @@ export default function RankingScreen() {
     return `${Math.round(area)} m²`;
   };
 
-  const renderItem = ({ item, index }: { item: RankingUser; index: number }) => (
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: RankingUser;
+    index: number;
+  }) => (
     <View style={styles.rankItem}>
       <View style={styles.rankPosition}>
         {index === 0 ? (
@@ -68,7 +68,8 @@ export default function RankingScreen() {
         <Text style={styles.userName}>{item.user.name}</Text>
         <View style={styles.stats}>
           <Text style={styles.statText}>
-            {item.territoriesCount} território{item.territoriesCount !== 1 ? 's' : ''}
+            {item.territoriesCount} território
+            {item.territoriesCount !== 1 ? "s" : ""}
           </Text>
           <Text style={styles.statDivider}>•</Text>
           <Text style={styles.statText}>{formatArea(item.totalArea)}</Text>
@@ -95,13 +96,15 @@ export default function RankingScreen() {
         <FlatList
           data={ranking}
           renderItem={renderItem}
-          keyExtractor={item => item.user.id}
+          keyExtractor={(item) => item.user.id}
           contentContainerStyle={styles.list}
         />
       ) : (
         <View style={styles.empty}>
           <Trophy size={64} color="#333" />
-          <Text style={styles.emptyText}>Nenhum território conquistado ainda</Text>
+          <Text style={styles.emptyText}>
+            Nenhum território conquistado ainda
+          </Text>
           <Text style={styles.emptySubtext}>
             Seja o primeiro a dominar uma área!
           </Text>
@@ -114,25 +117,25 @@ export default function RankingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: "#0a0a0a",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 16,
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a',
+    borderBottomColor: "#1a1a1a",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold' as const,
-    color: '#fff',
+    fontWeight: "bold" as const,
+    color: "#fff",
   },
   subtitle: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
     marginTop: 2,
   },
   list: {
@@ -140,9 +143,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rankItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1a1a1a',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
     borderRadius: 16,
     padding: 16,
     gap: 16,
@@ -151,14 +154,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#2a2a2a',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#2a2a2a",
+    alignItems: "center",
+    justifyContent: "center",
   },
   rankNumber: {
     fontSize: 18,
-    fontWeight: 'bold' as const,
-    color: '#fff',
+    fontWeight: "bold" as const,
+    color: "#fff",
   },
   userInfo: {
     flex: 1,
@@ -166,49 +169,49 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: '600' as const,
-    color: '#fff',
+    fontWeight: "600" as const,
+    color: "#fff",
   },
   stats: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   statText: {
     fontSize: 13,
-    color: '#888',
+    color: "#888",
   },
   statDivider: {
     fontSize: 13,
-    color: '#666',
+    color: "#666",
   },
   score: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: "#FF6B6B",
     borderRadius: 12,
   },
   scoreText: {
     fontSize: 16,
-    fontWeight: 'bold' as const,
-    color: '#fff',
+    fontWeight: "bold" as const,
+    color: "#fff",
   },
   empty: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 40,
     gap: 12,
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: '600' as const,
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "600" as const,
+    color: "#fff",
+    textAlign: "center",
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#888',
-    textAlign: 'center',
+    color: "#888",
+    textAlign: "center",
   },
 });
