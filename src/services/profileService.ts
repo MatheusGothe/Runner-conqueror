@@ -24,7 +24,10 @@ export const ProfileService = {
   },
 
   // Atualiza campos do profile
-  async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile | null> {
+  async updateProfile(
+    userId: string,
+    updates: Partial<Profile>,
+  ): Promise<Profile | null> {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -41,6 +44,29 @@ export const ProfileService = {
     } catch (err) {
       console.error("Erro inesperado ao atualizar profile:", err);
       return null;
+    }
+  },
+  async createProfile(profile: any): Promise<boolean> {
+    try {
+      const { error } = await supabase.from("profiles").insert(profile);
+
+      if (error) {
+        console.error("Erro ao criar profile:", error);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Erro inesperado ao criar profile:", err);
+      return false;
+    }
+  },
+
+  async deleteProfile(userId: string): Promise<void> {
+    const { error } = await supabase.from("profiles").delete().eq("id", userId);
+
+    if (error) {
+      throw error;
     }
   },
 };

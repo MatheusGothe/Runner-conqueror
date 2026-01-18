@@ -30,7 +30,7 @@ const handleSubmit = async () => {
     return;
   }
 
-  let result: { success: boolean; error: AuthError | null } = { success: false, error: null };
+  let result: { success: boolean; error: any | null } = { success: false, error: null };
 
   if (isLogin) {
     result = await login(email, password);
@@ -47,15 +47,20 @@ const handleSubmit = async () => {
     }
   } else {
     result = await register(name, email, password);
-
+    
     if (!result.success) {
-      Alert.alert("Erro", "Este email já está cadastrado");
+      Alert.alert("Erro", result.error?.messageDescription);
       return;
+    } else {
+      sendVerificationEmail(email);
+      Alert.alert("Sucesso", "Conta criada com sucesso, por favor verifique seu email!");
     }
   }
 
   // Se chegou aqui, login ou registro foi bem-sucedido
-  router.replace("/(tabs)");
+  if(isLogin){
+    router.replace("/(tabs)");
+  }
 };
 
 
