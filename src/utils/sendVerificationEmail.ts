@@ -6,8 +6,10 @@ export const sendVerificationEmail = async (email: string) => {
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
-      // opcional: redirecionamento após confirmação
-
+      options: {
+        emailRedirectTo: 'myapp://auth/callback',
+        // ou https://seudominio.com/auth/callback
+      },
     });
 
     if (error) {

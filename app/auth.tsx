@@ -34,7 +34,7 @@ const handleSubmit = async () => {
 
   if (isLogin) {
     result = await login(email, password);
-
+    console.log('não cai login nao cai')
     if (!result.success) {
       // Verifica se é email não confirmado
       if (result.error?.message?.includes("Email not confirmed")) {
@@ -52,15 +52,21 @@ const handleSubmit = async () => {
       Alert.alert("Erro", result.error?.messageDescription);
       return;
     } else {
-      sendVerificationEmail(email);
+     // sendVerificationEmail(email);
       Alert.alert("Sucesso", "Conta criada com sucesso, por favor verifique seu email!");
     }
   }
-
+  clearFields()
   // Se chegou aqui, login ou registro foi bem-sucedido
   if(isLogin){
     router.replace("/(tabs)");
   }
+};
+
+const clearFields = () => {
+  setName("");
+  setEmail("");
+  setPassword("");
 };
 
 
